@@ -30,6 +30,11 @@ async function prompt(question) {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Directories that must never be copied into the user's project (dependencies and build output
+// that may exist locally when installing from a source checkout — a local `node src/cli.js` run
+// would otherwise carry Gradle build output and IDE state into the scaffolded project).
+const IGNORED_COPY_DIRS = ['node_modules', 'build', '.gradle', 'dist', 'wwwroot', '.idea'];
+
 const program = new Command();
 
 program
@@ -39,12 +44,13 @@ program
 
 program
   .command('install')
-  .description('Install eventmodelers-build-kit-java into the current directory')
+  .description('Install .build-kit into the current directory')
   .action(async () => {
     console.log('eventmodelers-build-kit-java\n');
 
     const rootDir = process.cwd();
-    const targetDir = join(rootDir, '.cratis-build-kit');
+    // P1: Use .build-kit as the kit directory name (not .cratis-build-kit or .build-kit)
+    const targetDir = join(rootDir, '.build-kit');
     mkdirSync(targetDir, { recursive: true });
 
     const templatesSource = join(__dirname, '..', 'templates');
@@ -54,21 +60,25 @@ program
       process.exit(1);
     }
 
+    // Copy template files first — credentials not required for this
     console.log('📦 Installing files...\n');
     const items = readdirSync(templatesSource);
     for (const item of items) {
+      if (IGNORED_COPY_DIRS.includes(item)) continue;
       const sourcePath = join(templatesSource, item);
 
+      // templates/root/ contents spread into the project root
       if (item === 'root' && statSync(sourcePath).isDirectory()) {
         const rootItems = readdirSync(sourcePath);
         for (const rootItem of rootItems) {
+          if (IGNORED_COPY_DIRS.includes(rootItem)) continue;
           const rootSourcePath = join(sourcePath, rootItem);
           const rootTargetPath = join(rootDir, rootItem);
           try {
             if (statSync(rootSourcePath).isDirectory()) {
               cpSync(rootSourcePath, rootTargetPath, {
                 recursive: true,
-                filter: (s) => !relative(rootSourcePath, s).split(sep).includes('node_modules'),
+                filter: (s) => !relative(rootSourcePath, s).split(sep).some((seg) => IGNORED_COPY_DIRS.includes(seg)),
               });
             } else {
               cpSync(rootSourcePath, rootTargetPath);
@@ -81,21 +91,23 @@ program
         continue;
       }
 
+      // templates/build-kit/ contents spread into .build-kit/
       if (item === 'build-kit' && statSync(sourcePath).isDirectory()) {
         const kitItems = readdirSync(sourcePath);
         for (const kitItem of kitItems) {
+          if (IGNORED_COPY_DIRS.includes(kitItem)) continue;
           const kitSourcePath = join(sourcePath, kitItem);
           const kitTargetPath = join(targetDir, kitItem);
           try {
             if (statSync(kitSourcePath).isDirectory()) {
               cpSync(kitSourcePath, kitTargetPath, {
                 recursive: true,
-                filter: (s) => !relative(kitSourcePath, s).split(sep).includes('node_modules'),
+                filter: (s) => !relative(kitSourcePath, s).split(sep).some((seg) => IGNORED_COPY_DIRS.includes(seg)),
               });
             } else {
               cpSync(kitSourcePath, kitTargetPath);
             }
-            console.log(`  ✓ Installed .cratis-build-kit/${kitItem}`);
+            console.log(`  ✓ Installed .build-kit/${kitItem}`);
           } catch (err) {
             console.error(`  ❌ Failed to copy ${kitItem}:`, err?.message);
           }
@@ -108,27 +120,29 @@ program
         if (statSync(sourcePath).isDirectory()) {
           cpSync(sourcePath, targetPath, {
             recursive: true,
-            filter: (s) => !relative(sourcePath, s).split(sep).includes('node_modules'),
+            filter: (s) => !relative(sourcePath, s).split(sep).some((seg) => IGNORED_COPY_DIRS.includes(seg)),
           });
         } else {
           cpSync(sourcePath, targetPath);
         }
-        console.log(`  ✓ Installed .cratis-build-kit/${item}`);
+        console.log(`  ✓ Installed .build-kit/${item}`);
       } catch (err) {
         console.error(`  ❌ Failed to copy ${item}:`, err?.message);
       }
     }
 
-    console.log('\n📦 Installing .cratis-build-kit dependencies...');
+    // Install .build-kit dependencies
+    console.log('\n📦 Installing .build-kit dependencies...');
     try {
       execSync('npm install', { cwd: targetDir, stdio: 'inherit' });
-      console.log('  ✓ .cratis-build-kit dependencies installed');
+      console.log('  ✓ .build-kit dependencies installed');
     } catch {
-      console.error('  ⚠️  npm install failed in .cratis-build-kit — run it manually');
+      console.error('  ⚠️  npm install failed in .build-kit — run it manually');
     }
 
+    // Add .build-kit/ to project root .gitignore
     const gitignorePath = join(rootDir, '.gitignore');
-    const gitignoreEntry = '.cratis-build-kit/';
+    const gitignoreEntry = '.build-kit/';
     if (existsSync(gitignorePath)) {
       const content = readFileSync(gitignorePath, 'utf-8');
       if (!content.includes(gitignoreEntry)) {
@@ -138,20 +152,27 @@ program
       writeFileSync(gitignorePath, `${gitignoreEntry}\n`);
     }
 
-    const configDir = join(targetDir, '.eventmodelers');
-    const configPath = join(configDir, 'config.json');
-    mkdirSync(configDir, { recursive: true });
+    // P2: Create config file in project root (not just kit directory)
+    // Config resolution: project root > kit directory > home directory
+    const rootConfigDir = join(rootDir, '.eventmodelers');
+    const rootConfigPath = join(rootConfigDir, 'config.json');
+    mkdirSync(rootConfigDir, { recursive: true });
+    
+    // Also create kit-local config as optional override
+    const kitConfigDir = join(targetDir, '.eventmodelers');
+    const kitConfigPath = join(kitConfigDir, 'config.json');
+    mkdirSync(kitConfigDir, { recursive: true });
 
     const hasExisting = await prompt('\nDo you have platform credentials from app.eventmodelers.ai/account? (y/n): ');
     if (hasExisting.toLowerCase() === 'y' || hasExisting.toLowerCase() === 'yes') {
-      console.log(`\n  Paste your config into:\n\n    ${configPath}\n\n  Then re-run this installer.\n`);
+      console.log(`\n  Paste your config into:\n\n    ${rootConfigPath}\n\n  Then re-run this installer.\n`);
       process.exit(0);
     }
 
     let config = {};
-    if (existsSync(configPath)) {
+    if (existsSync(rootConfigPath)) {
       try {
-        config = JSON.parse(readFileSync(configPath, 'utf-8'));
+        config = JSON.parse(readFileSync(rootConfigPath, 'utf-8'));
       } catch {
         config = {};
       }
@@ -168,9 +189,14 @@ program
       if (boardId) config.boardId        = boardId;
       if (token)   config.token          = token;
 
-      writeFileSync(configPath, JSON.stringify(config, null, 2));
+      // Write to project root (P2: config location)
+      writeFileSync(rootConfigPath, JSON.stringify(config, null, 2));
+      // Also copy to kit directory as optional override
+      writeFileSync(kitConfigPath, JSON.stringify(config, null, 2));
+      
       if (config.organizationId && config.boardId && config.token) {
-        console.log('\n  ✓ Credentials saved to .cratis-build-kit/.eventmodelers/config.json');
+        console.log(`\n  ✓ Credentials saved to .eventmodelers/config.json (project root)`);
+        console.log(`  ✓ Also copied to .build-kit/.eventmodelers/config.json (kit override)`);
       } else {
         console.log('\n  ℹ️  Config saved — use /connect in Claude Code to add credentials later');
       }
@@ -178,6 +204,7 @@ program
       console.log('\n  ✓ Config already present — skipping credential prompt');
     }
 
+    // Configure MCP server in .claude/settings.json
     const claudeDir = join(targetDir, '.claude');
     const settingsPath = join(claudeDir, 'settings.json');
     mkdirSync(claudeDir, { recursive: true });
@@ -204,20 +231,20 @@ program
     console.log('\n✅ Done!\n');
     console.log('Next steps:\n');
     console.log('  Claude (default):');
-    console.log('       node .cratis-build-kit/ralph-claude.js\n');
+    console.log('       node .build-kit/ralph-claude.js\n');
     console.log('  Local Ollama model (run `ollama serve` first):');
-    console.log('       OLLAMA_MODEL=qwen3:8b node .cratis-build-kit/ralph-ollama.js\n');
+    console.log('       OLLAMA_MODEL=qwen3:8b node .build-kit/ralph-ollama.js\n');
     console.log('  Pass a custom project directory as the first argument:');
-    console.log('       node .cratis-build-kit/ralph-claude.js /path/to/project\n');
-    console.log('Skills are ready in .cratis-build-kit/.claude/skills/ — use /connect to set a board ID.');
+    console.log('       node .build-kit/ralph-claude.js /path/to/project\n');
+    console.log('Skills are ready in .build-kit/.claude/skills/ — use /connect to set a board ID.');
   });
 
 program
   .command('uninstall')
-  .description('Remove .cratis-build-kit files from current directory')
+  .description('Remove .build-kit files from current directory')
   .action(() => {
     const targets = [
-      join(process.cwd(), '.cratis-build-kit'),
+      join(process.cwd(), '.build-kit'),
     ];
 
     for (const t of targets) {
@@ -234,18 +261,20 @@ program
   .command('status')
   .description('Check installation status')
   .action(() => {
-    const kitDir = join(process.cwd(), '.cratis-build-kit');
+    const kitDir = join(process.cwd(), '.build-kit');
     const skillsDir = join(kitDir, '.claude', 'skills');
-    const configPath = join(kitDir, '.eventmodelers', 'config.json');
+    const rootConfigPath = join(process.cwd(), '.eventmodelers', 'config.json');
+    const kitConfigPath = join(kitDir, '.eventmodelers', 'config.json');
 
-    console.log('.cratis-build-kit Status\n');
+    console.log('.build-kit Status\n');
     console.log(`Kit dir:        ${existsSync(kitDir) ? '✅ installed' : '❌ not found'}`);
     console.log(`Skills:         ${existsSync(skillsDir) ? '✅ installed' : '❌ not found'}`);
-    console.log(`Config:         ${existsSync(configPath) ? '✅ present' : '❌ missing'}`);
+    console.log(`Config (root):  ${existsSync(rootConfigPath) ? '✅ present' : '❌ missing'}`);
+    console.log(`Config (kit):   ${existsSync(kitConfigPath) ? '✅ present' : '❌ missing'}`);
 
-    if (existsSync(configPath)) {
+    if (existsSync(rootConfigPath)) {
       try {
-        const cfg = JSON.parse(readFileSync(configPath, 'utf-8'));
+        const cfg = JSON.parse(readFileSync(rootConfigPath, 'utf-8'));
         console.log(`\nConnected to: ${cfg.baseUrl}`);
         console.log(`Organization: ${cfg.organizationId}`);
         console.log(`Board:        ${cfg.boardId}`);

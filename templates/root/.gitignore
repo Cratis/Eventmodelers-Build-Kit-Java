@@ -1,0 +1,24 @@
+# Gradle
+.gradle/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# Node.js / frontend
+node_modules/
+npm-debug.log*
+dist/
+wwwroot/
+
+# Kit
+.build-kit/
+
+# OS
+.DS_Store
+Thumbs.db

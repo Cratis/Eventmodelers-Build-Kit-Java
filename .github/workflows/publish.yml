@@ -36,7 +36,8 @@ permissions:
 jobs:
   kit:
     if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
-    uses: Cratis/Eventmodelers-Build-Kit/.github/workflows/kit-release.yml@main
+    # The reusable release workflow is owned by the C# kit repository.
+    uses: Cratis/Eventmodelers-Build-Kit-CSharp/.github/workflows/kit-release.yml@main
     secrets:
       commit-token: ${{ secrets.KIT_RELEASE_TOKEN }}
     with:

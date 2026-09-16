@@ -1,27 +1,154 @@
-name: Pull requests
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+name: Build
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      test:
+        description: 'Run test suite'
+        required: false
+        default: 'true'
+      lint:
+        description: 'Run lint check'
+        required: false
+        default: 'true'
+      docs:
+        description: 'Run documentation check'
+        required: false
+        default: 'true'
+      corpus:
+        description: 'Run corpus check'
+        required: false
+        default: 'true'
+      java:
+        description: 'Run Java build and test'
+        required: false
+        default: 'true'
 
 jobs:
-  sync-corpus-check:
+  java:
+    name: Java Build and Test
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
+
+    if: github.event.inputs.java == 'true' || github.event_name == 'push'
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build
+        run: ./gradlew build --no-daemon
+        working-directory: templates/root
+        timeout-minutes: 15
+
+      - name: Report Results
+        run: |
+          echo "✅ Java build and test completed successfully"
+          echo "Run './gradlew test' in templates/root locally to see detailed results"
+
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '18'
+          cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm ci
 
-      - name: Check corpus sync
+      - name: Run Build
+        run: npm run build
+        timeout-minutes: 10
+
+      - name: Run Test Suite
+        run: npm test
+        timeout-minutes: 10
+
+      - name: Report Spec Count
+        run: |
+          echo "✅ Build completed successfully"
+          echo "Run 'npm test' locally to see detailed results"
+
+  markdown:
+    name: Documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Documentation Tools
+        run: npm install -g markdownlint-cli2 linkinator
+
+      - name: Verify Markdown
+        run: bash Documentation/verify-markdown.sh
+        timeout-minutes: 5
+        if: inputs.docs == 'true' || github.event_name != 'workflow_dispatch'
+
+  check:
+    name: Corpus Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Run Corpus Check
         run: node scripts/sync-corpus-to-templates.mjs --check
+        timeout-minutes: 5
+        if: inputs.corpus == 'true' || github.event_name != 'workflow_dispatch'
+
+  no-release:
+    name: No-Release Intent
+    runs-on: ubuntu-latest
+
+    if: contains(github.event.pull_request.labels.*.name, 'no-release')
+
+    steps:
+      - name: Check for Documentation Changes
+        run: |
+          echo "✅ PR marked as no-release"
+          echo "Checking documentation changes..."
+
+          # Get changed files
+          changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+
+          # Check if only documentation files changed
+          if echo "$changed_files" | grep -qE '^(Documentation/|README\.md|\.github/workflows/|\.gitignore)$'; then
+            echo "✅ Only documentation/CI changes detected"
+          else
+            echo "⚠️  Non-documentation files changed:"
+            echo "$changed_files"
+          fi

@@ -1,0 +1,10 @@
+- text: Home
+  href: index.md
+- text: Getting Started
+  items:
+  - text: Install the Kit
+    href: getting-started/install.md
+- text: Decisions
+  items:
+  - text: Kit Directory Name
+    href: decisions/kit-directory-name.md

@@ -7,3 +7,7 @@ node_modules
 # Gradle build output
 build/
 .gradle/
+
+# Kit test droppings
+test-install-*
+test-slice-persistence-*

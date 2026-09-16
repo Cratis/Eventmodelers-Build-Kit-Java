@@ -1,0 +1,9 @@
+services:
+  chronicle:
+    image: cratis/chronicle:latest-development
+    pull_policy: always
+    ports:
+      - 8080:8080
+      - 11111:11111
+      - 30000:30000
+      - 35000:35000

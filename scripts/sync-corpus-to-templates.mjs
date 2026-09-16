@@ -5,20 +5,13 @@ import { join } from 'path';
 
 const rootDir = process.cwd();
 const corpusSource = join(rootDir, '.cratis', 'ai');
-const corpusManifest = join(rootDir, '.cratis', 'ai', 'manifest.json');
+const corpusManifest = join(rootDir, '.cratis', 'ai.manifest.json');
 const templatesRoot = join(rootDir, 'templates', 'root');
 const templatesShared = join(rootDir, 'templates', '.claude', 'skills', '_shared');
 const aiJsonSource = join(rootDir, '.cratis', 'ai.json');
 const aiJsonTarget = join(templatesRoot, '.cratis', 'ai.json');
 
 const checkMode = process.argv.includes('--check');
-
-function deleteAndCopy(src, dst) {
-  if (existsSync(dst)) {
-    rmSync(dst, { recursive: true, force: true });
-  }
-  cpSync(src, dst, { recursive: true });
-}
 
 function readManifest() {
   if (!existsSync(corpusManifest)) {
@@ -31,6 +24,7 @@ function generateCratisConventions(manifest) {
   const profiles = manifest.profiles || [];
   const harnesses = manifest.harnesses || [];
   const languages = manifest.languages || [];
+  const sourceRevision = manifest.SourceRevision || manifest.version || manifest.schemaVersion || 'unknown';
 
   let content = `# Cratis Conventions
 
@@ -38,7 +32,7 @@ Generated from the Cratis AI corpus.
 
 ## Source
 
-- **Revision**: ${manifest.version || manifest.schemaVersion || 'unknown'}
+- **Revision**: ${sourceRevision}
 - **Profiles**: ${profiles.join(', ')}
 - **Harnesses**: ${harnesses.join(', ')}
 - **Languages**: ${languages.join(', ')}
@@ -97,7 +91,7 @@ function main() {
 
   const conventionsContent = generateCratisConventions(manifest);
   writeFileSync(conventionsPath, conventionsContent);
-  console.log('  ✓ Generated templates/.claude/skills/_shared/cratis-conventions.md');
+  console.log(`  ✓ Generated templates/.claude/skills/_shared/cratis-conventions.md (revision: ${manifest.SourceRevision || 'unknown'})`);
 
   if (checkMode) {
     console.log('\n--check mode: verifying no changes would be made...');

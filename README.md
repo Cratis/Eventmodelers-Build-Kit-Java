@@ -27,21 +27,21 @@ npx github:Cratis/Eventmodelers-Build-Kit-Java install
 
 It will:
 
-- Copy the **Cratis starter app** into your project root (Java backend with Chronicle, example slice, `CLAUDE.md`).
-- Install the loop machinery and skills into `.cratis-build-kit/` (gitignored automatically).
-- Prompt for board credentials (org ID, board ID, token) → `.cratis-build-kit/.eventmodelers/config.json`.
-- Configure the Eventmodelers MCP server in `.cratis-build-kit/.claude/settings.json`.
+- Copy the **Cratis starter app** into your project root (Java backend with Arc + Chronicle, example slice, shared React frontend, `CLAUDE.md`).
+- Install the loop machinery and skills into `.build-kit/` (gitignored automatically).
+- Prompt for board credentials (org ID, board ID, token) → `.build-kit/.eventmodelers/config.json`.
+- Configure the Eventmodelers MCP server in `.build-kit/.claude/settings.json`.
 
 | Path | Purpose |
 |------|---------|
-| `.cratis-build-kit/.claude/skills/build-state-change` | Write-slice skill (Cratis commands/events) |
-| `.cratis-build-kit/.claude/skills/build-state-view` | Read-slice skill (read models/projections) |
-| `.cratis-build-kit/.claude/skills/build-automation` | Automation/translation skill (reactors) |
-| `.cratis-build-kit/.claude/skills/_shared/cratis-conventions.md` | The distilled Cratis conventions |
-| `.cratis-build-kit/.claude/skills/{connect,load-slice,update-slice-status,learn-eventmodelers-api}` | Platform skills |
-| `.cratis-build-kit/ralph-claude.js` / `ralph.sh` | The agent loop |
-| `.cratis-build-kit/lib/prompt.md` / `backend-prompt.md` | Agent instructions |
-| `.cratis-build-kit/lib/AGENT.md` | Accumulated learnings across iterations |
+| `.build-kit/.claude/skills/build-state-change` | Write-slice skill (Cratis commands/events) |
+| `.build-kit/.claude/skills/build-state-view` | Read-slice skill (read models/projections) |
+| `.build-kit/.claude/skills/build-automation` | Automation/translation skill (reactors) |
+| `.build-kit/.claude/skills/_shared/cratis-conventions.md` | The distilled Cratis conventions |
+| `.build-kit/.claude/skills/{connect,load-slice,update-slice-status,learn-eventmodelers-api}` | Platform skills |
+| `.build-kit/ralph-claude.js` / `ralph.sh` | The agent loop |
+| `.build-kit/lib/prompt.md` / `backend-prompt.md` | Agent instructions |
+| `.build-kit/lib/AGENT.md` | Accumulated learnings across iterations |
 
 ## Usage
 
@@ -54,13 +54,13 @@ Start the agent loop:
 
 ```bash
 # Claude (default)
-node .cratis-build-kit/ralph-claude.js
+node .build-kit/ralph-claude.js
 
 # Local Ollama model (run `ollama serve` first)
-OLLAMA_MODEL=qwen3:8b node .cratis-build-kit/ralph-ollama.js
+OLLAMA_MODEL=qwen3:8b node .build-kit/ralph-ollama.js
 
 # Target a custom project directory
-node .cratis-build-kit/ralph-claude.js /path/to/project
+node .build-kit/ralph-claude.js /path/to/project
 ```
 
 ## What the kit owns
@@ -87,5 +87,5 @@ MIT
 
 ## Sibling kits
 
-- [Eventmodelers Build Kit — C#](https://github.com/Cratis/Eventmodelers-Build-Kit) — C# variant
+- [Eventmodelers Build Kit — C#](https://github.com/Cratis/Eventmodelers-Build-Kit-CSharp) — C# variant
 - [Eventmodelers Build Kit — Kotlin](https://github.com/Cratis/Eventmodelers-Build-Kit-Kotlin) — Kotlin variant
