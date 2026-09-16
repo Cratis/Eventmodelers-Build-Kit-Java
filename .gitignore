@@ -1,0 +1,9 @@
+node_modules
+.idea
+.vscode
+.eventmodelers
+*.log
+
+# Gradle build output
+build/
+.gradle/

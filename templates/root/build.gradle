@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'io.cratis'
+version = '0.0.1'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+application {
+    mainClass = 'io.cratis.JavaApp'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation('io.cratis:chronicle-client-java:latest')
+    testImplementation('junit:junit:4.13.2')
+}
