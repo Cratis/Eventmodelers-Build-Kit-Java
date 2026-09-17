@@ -9,7 +9,9 @@
     "pi"
   ],
   "profiles": [
-    "cratis/chronicle/client-java"
+    "cratis/application/java",
+    "cratis/arc/java",
+    "cratis/chronicle/java"
   ],
   "languages": [
     "java"
