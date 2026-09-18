@@ -40,7 +40,7 @@ const program = new Command();
 program
   .name('eventmodelers-build-kit-java')
   .description('eventmodelers-build-kit-java — real-time Claude agent that turns Eventmodelers slices into Cratis (Arc + Chronicle) vertical slices')
-  .version('0.0.1');
+  .version('1.0.0');
 
 program
   .command('install')
