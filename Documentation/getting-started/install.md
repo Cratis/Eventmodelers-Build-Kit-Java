@@ -29,12 +29,12 @@ npx github:Cratis/Eventmodelers-Build-Kit-Java install
 
 This will:
 
-1. Copy the **Cratis starter app** (Java backend with Arc + Chronicle, example slice, shared React frontend) into your project root
+1. Copy the **Cratis starter app** (Java backend with Arc + Chronicle, an example slice, and the shared React frontend) into your project root
 2. Create a `.build-kit/` directory with the agent loop and skills
 3. Install Node.js dependencies for the loop
 4. Add `.build-kit/` to your `.gitignore`
 5. Create `.eventmodelers/config.json` in your project root
-6. Configure MCP server in `.build-kit/.claude/settings.json`
+6. Configure the MCP server in `.build-kit/.claude/settings.json`
 
 ### Option 2: Upstream CLI with Git Stack
 
@@ -58,8 +58,8 @@ The installer prompts for your Eventmodelers credentials:
   Token:
 ```
 
-Get these from [app.eventmodelers.ai/account](https://app.eventmodelers.ai/account). You can skip
-them and configure later — see the `connect` skill.
+Get these from [app.eventmodelers.ai/account](https://app.eventmodelers.ai/account). You can skip any
+field and configure it later — see [Connect a Board](../guides/connect-a-board.md).
 
 ## After Installation
 
@@ -69,17 +69,79 @@ Start the agent loop:
 node .build-kit/ralph-claude.js
 ```
 
+Or, using a local Ollama model (run `ollama serve` first):
+
+```bash
+OLLAMA_MODEL=qwen3:8b node .build-kit/ralph-ollama.js
+```
+
 Verify the installation:
 
 ```bash
 npx github:Cratis/Eventmodelers-Build-Kit-Java status
 ```
 
-Build and run the starter:
+You should see:
+
+```
+.build-kit Status
+
+Kit dir:        ✅ installed
+Skills:         ✅ installed
+Config (root):  ✅ present
+Config (kit):   ✅ present
+
+Connected to: https://api.eventmodelers.ai
+Organization: <your-org-id>
+Board:        <your-board-id>
+```
+
+Build and run the starter app:
 
 ```bash
-docker-compose up -d   # Chronicle development kernel
-./gradlew build        # backend
-./gradlew bootRun      # run the backend (http://localhost:8080)
-npm install && npm run dev   # frontend dev server
+docker-compose up -d           # Chronicle development kernel
+./gradlew build                # backend
+./gradlew bootRun              # run the backend (http://localhost:8080)
+npm install && npm run dev     # frontend dev server (http://localhost:5173)
 ```
+
+## Next Steps
+
+Now that the kit is installed:
+
+1. [Connect your Eventmodelers board](../guides/connect-a-board.md)
+2. [Mark a slice as `Planned`](https://app.eventmodelers.ai) on your board
+3. [Run the kit](first-slice.md) to implement the slice
+
+## Troubleshooting
+
+### Installation Fails
+
+If installation fails:
+
+1. Check the Node.js version: `node --version` (should be 18+)
+2. Ensure you're in a valid project directory
+3. Check network connectivity
+4. Try running with elevated permissions if needed
+
+### Config Not Found
+
+If the kit can't find your config:
+
+1. Verify `.eventmodelers/config.json` exists in your project root
+2. Check that the JSON is valid: `cat .eventmodelers/config.json | jq .`
+3. Ensure your credentials are correct: [app.eventmodelers.ai/account](https://app.eventmodelers.ai/account)
+
+### MCP Server Not Configured
+
+If MCP server configuration fails:
+
+1. Check that `.build-kit/.claude/settings.json` exists
+2. Verify the `mcpServers.eventmodelers` entry is present
+3. Restart Claude Code after installation
+
+## See Also
+
+- [Connect a Board](../guides/connect-a-board.md)
+- [Run Your First Slice](first-slice.md)
+- [CLI Commands](../reference/cli-commands.md)

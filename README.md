@@ -14,6 +14,7 @@ Note: The Java kit currently uses the `cratis/chronicle/client-java` profile fro
 - [What the kit owns](#what-the-kit-owns) — capabilities and boundaries
 - [Usage](#usage) — how to run the agent loop
 - [Cratis AI corpus](#cratis-ai-corpus) — generated conventions and skills
+- [Documentation](Documentation/) — full walkthroughs: install, run your first slice, connect a board, the loop, CLI reference
 - [License](#license) — MIT
 - [Sibling kits](#sibling-kits) — C# and Kotlin variants
 

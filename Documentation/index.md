@@ -14,7 +14,7 @@ When a slice is marked `Planned` on your Eventmodelers board, this kit automatic
 
 1. **Connects** to the Eventmodelers Platform in real-time
 2. **Fetches** the slice definition and board context
-3. **Generates** a complete Cratis vertical slice (commands, events, read models, React components)
+3. **Generates** a complete Cratis vertical slice (commands, events, projections, read models, React components)
 4. **Builds** the slice with `./gradlew build` and runs tests with `./gradlew test`
 5. **Updates** the board status to `Done` when complete
 
@@ -22,8 +22,9 @@ The entire process happens automatically, with your Claude agent implementing th
 
 ## Where to Start
 
-- **[Getting Started](getting-started/)** — Install the kit and run your first slice from Planned to Done
-- **[Install the Kit](getting-started/install.md)** — The installer, step by step
+- **[Install the Kit](getting-started/install.md)** — Get up and running in five minutes
+- **[Run Your First Slice](getting-started/first-slice.md)** — Watch a slice go from `Planned` to `Done`
+- **[Connect a Board](guides/connect-a-board.md)** — Wire the kit up to your Eventmodelers board
 
 ## How It Works
 
@@ -38,10 +39,14 @@ The kit implements the [Eventmodelers Build Kits platform contract](https://gith
    - `projections`/`queries`/`readModel` → `build-state-view` (read models)
    - Otherwise (`commands`/`events`) → `build-state-change` (commands/events)
 4. **Cratis conformance** — Generated slices follow Cratis best practices:
-   - One slice folder per slice (one public type per file) with `@Command` and `@EventType`
-   - `ConceptAs<T>` for identities and values in events and read models
-   - Read models exposed as Arc queries with `@Path`
+   - One public type per file (one slice folder per slice) — command, event, and reactor sit together
+   - `@Command` records carry a `handle()` method — no separate handler class
+   - `@EventType` records use past-tense, self-describing names
+   - `ConceptAs<T>` wraps identities and values in events and read models instead of raw primitives
+   - Read models are exposed as Arc queries annotated with `@Path`
    - Package mirrors the folder structure
+
+See [Understanding the Loop](understand/the-loop.md) for the full mechanics.
 
 ## Place in the Cratis Ecosystem
 
@@ -61,6 +66,12 @@ Install from git (this package is private, so use the git install path):
 npx github:Cratis/Eventmodelers-Build-Kit-Java install
 ```
 
+Or use the upstream CLI with this repository as a git stack:
+
+```bash
+npx @eventmodelers/cli init --stack cratis-java --git https://github.com/Cratis/Eventmodelers-Build-Kit-Java
+```
+
 After installation, run:
 
 ```bash
@@ -70,6 +81,13 @@ node .build-kit/ralph-claude.js
 ## Next Steps
 
 1. [Install the kit](getting-started/install.md)
-2. Connect your Eventmodelers board credentials
-3. Mark a slice as `Planned` on your board
-4. Watch the kit automatically implement it as a Cratis vertical slice
+2. [Connect your Eventmodelers board](guides/connect-a-board.md)
+3. [Mark a slice as `Planned`](https://app.eventmodelers.ai) on your board
+4. Watch the kit automatically implement it as a Cratis vertical slice — see [Run Your First Slice](getting-started/first-slice.md)
+
+## See Also
+
+- [Understanding the Loop](understand/the-loop.md) — How the two triggers work independently
+- [CLI Commands](reference/cli-commands.md) — `install`, `uninstall`, and `status`
+- [Cratis Conventions](https://github.com/Cratis/Eventmodelers-Build-Kit-Java/tree/main/templates/.claude/skills/_shared/cratis-conventions.md) — The conventions the kit enforces, generated from the Cratis AI corpus
+- [Eventmodelers Build Kits platform contract](https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits) — The platform skills the kit uses
