@@ -1,10 +1,24 @@
-- text: Home
+- name: Home
   href: index.md
-- text: Getting Started
+- name: Getting Started
   items:
-  - text: Install the Kit
+  - name: Install the Kit
     href: getting-started/install.md
-- text: Decisions
+  - name: Run Your First Slice
+    href: getting-started/first-slice.md
+- name: Guides
   items:
-  - text: Kit Directory Name
+  - name: Connect a Board
+    href: guides/connect-a-board.md
+- name: Understand
+  items:
+  - name: The Loop and Triggers
+    href: understand/the-loop.md
+- name: Reference
+  items:
+  - name: CLI Commands
+    href: reference/cli-commands.md
+- name: Decisions
+  items:
+  - name: Kit Directory Name
     href: decisions/kit-directory-name.md
