@@ -11,7 +11,8 @@
   "profiles": [
     "cratis/application/java",
     "cratis/arc/java",
-    "cratis/chronicle/java"
+    "cratis/chronicle/java",
+    "cratis/engineering/core"
   ],
   "languages": [
     "java"
