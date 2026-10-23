@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-query-kotlin
-description: Add a query to a Cratis Arc @ReadModel in Kotlin or Java — companion-object or static query methods, GET vs RFC QUERY, and observable queries returning Kotlin Flow, JDK Flow.Publisher, or RxJava 3 Observable over SSE and WebSocket. Use when exposing read-model data from a Kotlin or Java Arc application. Do not use for the .NET Arc query shape, for command definition, or for how events populate the read model (Chronicle projections/reducers).
+description: Add a query to a Cratis Arc @ReadModel in Kotlin or Java — companion-object or static query methods, GET vs RFC QUERY, and observable queries returning Kotlin Flow, JDK Flow.Publisher, or RxJava 3 Observable over SSE and WebSocket. Use when exposing JVM @ReadModel companion/static methods through KSP, Kotlin Flow, JDK Publisher or RxJava transports. Do not use for Node.js @query() (use cratis-arc-query-typescript), C# query creation (use cratis-chronicle-read-model), or commands (use cratis-arc-command-kotlin); event materialization belongs to cratis-chronicle-client-kotlin.
 license: MIT
 ---
 <!-- cratis-ai-managed: skills/cratis-arc-query-kotlin/SKILL.md -->
@@ -13,8 +13,7 @@ static (Java) methods are queries. KSP generates a reflection-free
 
 ## Verified product sources
 
-Verified against `Arc.Kotlin` at tag **`v7.7.0`**: JDK 17, Gradle 8.14.4,
-Kotlin 2.4.20, KSP 2.3.12, Spring Boot 4.1.1, JUnit Jupiter 6.1.3. `io.cratis:arc` supplies
+Source: `Arc.Kotlin`. `io.cratis:arc` supplies
 `io.cratis.arc.artifacts.ReadModel`, `io.cratis.arc.queries.Path`,
 `@QueryHttpMethod`, `@QueryTransport`, `ObservableState<T>`. The optional
 `arc-rxjava3` artifact adds RxJava 3 `Observable` support at runtime. The
@@ -214,7 +213,7 @@ site from opening a socket carrying your visitor's cookies.
 
 For repository-backed paging, concept converters, tenant-aware storage and
 Mongo/JPA observable snapshots, use `cratis-arc-spring-data-kotlin`.
-Arc `7.7.0` also aligns Chronicle projection collection names with Arc MongoDB;
+Arc also aligns Chronicle projection collection names with Arc MongoDB;
 read [../cratis-arc-command-kotlin/references/read-model-naming.md](../cratis-arc-command-kotlin/references/read-model-naming.md)
 when upgrading or customizing collection names.
 
