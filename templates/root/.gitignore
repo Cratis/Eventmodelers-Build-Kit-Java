@@ -19,6 +19,9 @@ wwwroot/
 # Kit
 .build-kit/
 
+# Local Eventmodelers credentials
+.eventmodelers/
+
 # OS
 .DS_Store
 Thumbs.db
