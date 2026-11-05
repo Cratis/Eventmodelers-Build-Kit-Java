@@ -1,6 +1,6 @@
 ---
 title: The Loop and Triggers
-description: How the Eventmodelers Build Kit - Java agent loop decides what to do next
+description: Explore the Java Eventmodelers Build Kit loop, its independent task and build triggers, slice routing and local builds without board credentials.
 tableOfContents: false
 ---
 

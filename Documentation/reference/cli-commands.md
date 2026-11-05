@@ -1,6 +1,6 @@
 ---
 title: CLI Commands
-description: Command reference for the Eventmodelers Build Kit - Java installer CLI
+description: Manage the Java Eventmodelers Build Kit with install, uninstall and status commands, and run the Claude or Ollama loop separately with Node.js.
 tableOfContents: false
 ---
 

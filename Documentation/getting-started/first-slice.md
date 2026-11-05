@@ -1,6 +1,6 @@
 ---
 title: Run Your First Slice
-description: See a slice go from Planned to Done with the Eventmodelers Build Kit - Java
+description: Run a Java board slice from Planned to Done with the Eventmodelers Build Kit, then inspect the generated Cratis code and Gradle build and test results.
 tableOfContents: false
 ---
 

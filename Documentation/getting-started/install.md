@@ -1,6 +1,6 @@
 ---
 title: Install the Kit
-description: Install the Eventmodelers Build Kit - Java into your project directory
+description: Install the Java Eventmodelers Build Kit with Node.js and JDK 17, configure board credentials and MCP access, then start the agent loop in your project.
 tableOfContents: false
 ---
 
