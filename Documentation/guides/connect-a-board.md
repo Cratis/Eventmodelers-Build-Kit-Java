@@ -1,6 +1,6 @@
 ---
 title: Connect a Board
-description: Set up Eventmodelers board credentials for the Build Kit - Java
+description: Connect the Java Build Kit to an Eventmodelers board using organization and board IDs plus an API token, then check status or rotate credentials.
 tableOfContents: false
 ---
 

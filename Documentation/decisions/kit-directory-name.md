@@ -1,6 +1,6 @@
 ---
 title: Kit Directory Name
-description: Decision to use .build-kit as the kit directory name
+description: The Java Eventmodelers Build Kit uses .build-kit for runtime files, prompts and skills so the upstream CLI recognizes installed kits and their status.
 status: Accepted
 date: 2025-01-15
 deciders: Cratis Team
